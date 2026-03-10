@@ -2,15 +2,15 @@ import { prisma } from "@/lib/db";
 import type { CreateStudentInput } from "@/lib/validation/student";
 
 export async function createStudent(input: CreateStudentInput) {
-  const { fullName, studentCode, email, phone, career } = input;
+  const { fullName, studentCode, email, career, notes } = input;
 
   return prisma.student.create({
     data: {
       fullName,
-      studentCode,
+      studentCode: studentCode || null,
       email: email || null,
-      phone: phone || null,
-      career: career || null
+      career: career || null,
+      notes: notes || null
     }
   });
 }
@@ -39,10 +39,9 @@ export async function getStudentById(id: string) {
       cases: {
         orderBy: { createdAt: "desc" },
         include: {
-          responsible: true
+          assignedTo: true
         }
       }
     }
   });
 }
-

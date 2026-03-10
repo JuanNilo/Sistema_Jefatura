@@ -34,7 +34,7 @@ export default async function DashboardPage() {
                   <p className="font-medium">{caseRecord.title}</p>
                   <p className="text-xs text-slate-500">
                     {caseRecord.student.fullName} · Responsable:{" "}
-                    {caseRecord.responsible.name}
+                    {caseRecord.assignedTo.name}
                   </p>
                 </div>
               </li>
@@ -45,4 +45,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-

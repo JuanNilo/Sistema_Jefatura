@@ -12,15 +12,13 @@ export function isAdmin(user: AuthenticatedUser): boolean {
 
 export function canAccessCase(
   user: AuthenticatedUser,
-  caseRecord: Pick<Case, "responsibleUserId" | "createdByUserId">
+  caseRecord: Pick<Case, "assignedToId" | "createdById">
 ): boolean {
   if (isAdmin(user)) {
     return true;
   }
 
   return (
-    caseRecord.responsibleUserId === user.id ||
-    caseRecord.createdByUserId === user.id
+    caseRecord.assignedToId === user.id || caseRecord.createdById === user.id
   );
 }
-

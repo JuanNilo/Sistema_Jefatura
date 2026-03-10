@@ -1,6 +1,3 @@
-import type { Student, StudentStatus } from "@prisma/client";
+import type { Student } from "@prisma/client";
 
 export type AppStudent = Student;
-
-export type StudentState = StudentStatus;
-

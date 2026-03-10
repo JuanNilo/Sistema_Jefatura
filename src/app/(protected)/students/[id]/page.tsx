@@ -24,7 +24,7 @@ export default async function StudentDetailPage({
       <div>
         <h1 className="text-2xl font-semibold">{student.fullName}</h1>
         <p className="text-sm text-slate-500">
-          Código: {student.studentCode}
+          Código: {student.studentCode ?? "Sin código"}
         </p>
         <p className="text-sm text-slate-500">
           Carrera: {student.career ?? "Sin información"}
@@ -66,7 +66,7 @@ export default async function StudentDetailPage({
                 <td className="px-4 py-2">{caseRecord.status}</td>
                 <td className="px-4 py-2">{caseRecord.priority}</td>
                 <td className="px-4 py-2">
-                  {caseRecord.responsible?.name ?? "-"}
+                  {caseRecord.assignedTo?.name ?? "-"}
                 </td>
               </tr>
             ))}
@@ -86,4 +86,3 @@ export default async function StudentDetailPage({
     </div>
   );
 }
-

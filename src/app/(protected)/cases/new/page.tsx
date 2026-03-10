@@ -4,7 +4,7 @@ import { authOptions } from "@/server/auth/auth-config";
 import { createCaseSchema } from "@/lib/validation/case";
 import { createCase } from "@/server/cases/cases.service";
 import { prisma } from "@/lib/db";
-import { CasePriority } from "@prisma/client";
+import { CasePriority, CaseType, CaseVisibility } from "@prisma/client";
 
 async function createCaseAction(formData: FormData) {
   "use server";
@@ -15,13 +15,21 @@ async function createCaseAction(formData: FormData) {
     redirect("/login");
   }
 
+  const visibilityValue = formData.get("visibility");
+  const normalizedVisibility =
+    typeof visibilityValue === "string" && visibilityValue.length > 0
+      ? visibilityValue
+      : undefined;
+
   const result = createCaseSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description"),
     studentId: formData.get("studentId"),
-    responsibleUserId:
-      formData.get("responsibleUserId") ?? session.user.id.toString(),
+    assignedToId:
+      formData.get("assignedToId") ?? session.user.id.toString(),
+    caseType: formData.get("caseType"),
     priority: formData.get("priority"),
+    visibility: normalizedVisibility,
     nextAction: formData.get("nextAction"),
     dueDate: formData.get("dueDate")
   });
@@ -95,6 +103,35 @@ export default async function NewCasePage({
         <div>
           <label
             className="mb-1 block text-sm font-medium"
+            htmlFor="caseType"
+          >
+            Tipo de caso
+          </label>
+          <select
+            id="caseType"
+            name="caseType"
+            defaultValue={CaseType.ACADEMIC}
+            className="w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+            required
+          >
+            <option value={CaseType.ACADEMIC}>Académico</option>
+            <option value={CaseType.PERSONAL}>Personal</option>
+            <option value={CaseType.ATTENDANCE}>Asistencia</option>
+            <option value={CaseType.REINTEGRATION}>Reintegración</option>
+            <option value={CaseType.COURSE_LOAD}>Carga académica</option>
+            <option value={CaseType.SCHEDULE_CONFLICT}>Choque de horario</option>
+            <option value={CaseType.INTERNSHIP}>Práctica / Internado</option>
+            <option value={CaseType.BENEFITS}>Beneficios</option>
+            <option value={CaseType.COEXISTENCE}>Convivencia</option>
+            <option value={CaseType.INSTITUTIONAL_REFERRAL}>
+              Derivación institucional
+            </option>
+            <option value={CaseType.OTHER}>Otro</option>
+          </select>
+        </div>
+        <div>
+          <label
+            className="mb-1 block text-sm font-medium"
             htmlFor="description"
           >
             Descripción
@@ -111,13 +148,13 @@ export default async function NewCasePage({
           <div>
             <label
               className="mb-1 block text-sm font-medium"
-              htmlFor="responsibleUserId"
+              htmlFor="assignedToId"
             >
               Responsable
             </label>
             <select
-              id="responsibleUserId"
-              name="responsibleUserId"
+              id="assignedToId"
+              name="assignedToId"
               defaultValue={session.user.id}
               className="w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
               required
@@ -153,6 +190,25 @@ export default async function NewCasePage({
         <div>
           <label
             className="mb-1 block text-sm font-medium"
+            htmlFor="visibility"
+          >
+            Visibilidad
+          </label>
+          <select
+            id="visibility"
+            name="visibility"
+            defaultValue=""
+            className="w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+          >
+            <option value="">Predeterminada</option>
+            <option value={CaseVisibility.PRIVATE}>Privado</option>
+            <option value={CaseVisibility.TEAM}>Equipo</option>
+            <option value={CaseVisibility.INSTITUTION}>Institucional</option>
+          </select>
+        </div>
+        <div>
+          <label
+            className="mb-1 block text-sm font-medium"
             htmlFor="nextAction"
           >
             Próxima acción
@@ -184,4 +240,3 @@ export default async function NewCasePage({
     </div>
   );
 }
-

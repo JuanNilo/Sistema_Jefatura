@@ -12,8 +12,7 @@ export type AppCaseStatus = CaseStatus;
 export type AppCasePriority = CasePriority;
 export type AppCaseComment = CaseComment;
 
-export type CaseWithStudentAndResponsible = Case & {
+export type CaseWithStudentAndAssignee = Case & {
   student: Student;
-  responsible: User;
+  assignedTo: User;
 };
-

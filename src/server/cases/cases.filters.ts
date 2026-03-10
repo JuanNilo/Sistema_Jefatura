@@ -23,9 +23,12 @@ export function parseCaseFilters(raw: RawCaseFilters): CaseFilters {
     const values = Array.isArray(raw.status) ? raw.status : [raw.status];
     filters.status = values.filter(
       (value): value is CaseStatus =>
-        value === "OPEN" ||
-        value === "IN_PROGRESS" ||
-        value === "WAITING_STUDENT" ||
+        value === "NEW" ||
+        value === "IN_REVIEW" ||
+        value === "PENDING_STUDENT" ||
+        value === "REFERRED" ||
+        value === "FOLLOW_UP" ||
+        value === "RESOLVED" ||
         value === "CLOSED"
     );
   }
@@ -55,4 +58,3 @@ export function parseCaseFilters(raw: RawCaseFilters): CaseFilters {
 
   return filters;
 }
-

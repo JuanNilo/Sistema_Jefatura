@@ -65,7 +65,10 @@ export default async function CaseDetailPage({
             Estudiante: {caseRecord.student.fullName}
           </p>
           <p className="text-sm text-slate-500">
-            Responsable: {caseRecord.responsible.name}
+            Responsable: {caseRecord.assignedTo.name}
+          </p>
+          <p className="text-sm text-slate-500">
+            Tipo: {caseRecord.caseType}
           </p>
         </div>
         <div className="space-y-1 text-sm text-right">
@@ -133,12 +136,18 @@ export default async function CaseDetailPage({
 
 function translateStatus(status: CaseStatus): string {
   switch (status) {
-    case CaseStatus.OPEN:
-      return "Abierto";
-    case CaseStatus.IN_PROGRESS:
-      return "En progreso";
-    case CaseStatus.WAITING_STUDENT:
-      return "Esperando estudiante";
+    case CaseStatus.NEW:
+      return "Nuevo";
+    case CaseStatus.IN_REVIEW:
+      return "En revisión";
+    case CaseStatus.PENDING_STUDENT:
+      return "Pendiente estudiante";
+    case CaseStatus.REFERRED:
+      return "Derivado";
+    case CaseStatus.FOLLOW_UP:
+      return "Seguimiento";
+    case CaseStatus.RESOLVED:
+      return "Resuelto";
     case CaseStatus.CLOSED:
       return "Cerrado";
     default:
@@ -160,4 +169,3 @@ function translatePriority(priority: CasePriority): string {
       return priority;
   }
 }
-

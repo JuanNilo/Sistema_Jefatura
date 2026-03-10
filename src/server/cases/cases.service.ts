@@ -2,14 +2,22 @@ import { prisma } from "@/lib/db";
 import type { CreateCaseInput } from "@/lib/validation/case";
 import type { AuthenticatedUser } from "@/server/auth/permissions";
 import { isPastOrToday } from "@/lib/date";
-import { CasePriority, CaseStatus } from "@prisma/client";
+import { CasePriority, CaseStatus, CommentType } from "@prisma/client";
 import type { CaseFilters } from "./cases.filters";
 
 export async function createCase(
   input: CreateCaseInput,
   currentUser: AuthenticatedUser
 ) {
-  const { title, description, studentId, responsibleUserId, priority } = input;
+  const {
+    title,
+    description,
+    studentId,
+    assignedToId,
+    caseType,
+    priority,
+    visibility
+  } = input;
   const nextAction = input.nextAction || null;
   const dueDate = input.dueDate ? new Date(input.dueDate) : null;
 
@@ -18,11 +26,13 @@ export async function createCase(
       title,
       description,
       studentId,
-      responsibleUserId,
+      assignedToId,
+      caseType,
       priority,
       nextAction,
       dueDate,
-      createdByUserId: currentUser.id
+      visibility: visibility ?? null,
+      createdById: currentUser.id
     }
   });
 }
@@ -33,7 +43,7 @@ export async function addCommentAndUpdateCase(options: {
   updates?: {
     status?: CaseStatus;
     priority?: CasePriority;
-    responsibleUserId?: string;
+    assignedToId?: string;
     nextAction?: string;
     dueDate?: Date | null;
   };
@@ -47,7 +57,7 @@ export async function addCommentAndUpdateCase(options: {
       data: {
         status: updates?.status,
         priority: updates?.priority,
-        responsibleUserId: updates?.responsibleUserId,
+        assignedToId: updates?.assignedToId,
         nextAction: updates?.nextAction,
         dueDate: updates?.dueDate
       }
@@ -56,8 +66,9 @@ export async function addCommentAndUpdateCase(options: {
     await tx.caseComment.create({
       data: {
         caseId,
-        authorUserId: authorId,
-        content
+        authorId,
+        content,
+        commentType: CommentType.NOTE
       }
     });
 
@@ -70,7 +81,7 @@ export async function getCaseById(id: string) {
     where: { id },
     include: {
       student: true,
-      responsible: true,
+      assignedTo: true,
       createdBy: true,
       comments: {
         include: {
@@ -99,7 +110,7 @@ export async function listCases(
   }
 
   if (filters.responsibleId) {
-    where.responsibleUserId = filters.responsibleId;
+    where.assignedToId = filters.responsibleId;
   }
 
   if (filters.studentQuery) {
@@ -131,8 +142,8 @@ export async function listCases(
 
   if (currentUser.role !== "ADMIN") {
     where.OR = [
-      { responsibleUserId: currentUser.id },
-      { createdByUserId: currentUser.id }
+      { assignedToId: currentUser.id },
+      { createdById: currentUser.id }
     ];
   }
 
@@ -141,7 +152,7 @@ export async function listCases(
     orderBy: { updatedAt: "desc" },
     include: {
       student: true,
-      responsible: true
+      assignedTo: true
     }
   });
 }
@@ -151,14 +162,19 @@ export async function listCasesNeedingAttention(
 ) {
   const where: Parameters<typeof prisma.case.findMany>[0]["where"] = {
     status: {
-      in: [CaseStatus.OPEN, CaseStatus.IN_PROGRESS, CaseStatus.WAITING_STUDENT]
+      in: [
+        CaseStatus.NEW,
+        CaseStatus.IN_REVIEW,
+        CaseStatus.PENDING_STUDENT,
+        CaseStatus.FOLLOW_UP
+      ]
     }
   };
 
   if (currentUser.role !== "ADMIN") {
     where.OR = [
-      { responsibleUserId: currentUser.id },
-      { createdByUserId: currentUser.id }
+      { assignedToId: currentUser.id },
+      { createdById: currentUser.id }
     ];
   }
 
@@ -166,7 +182,7 @@ export async function listCasesNeedingAttention(
     where,
     include: {
       student: true,
-      responsible: true
+      assignedTo: true
     }
   });
 

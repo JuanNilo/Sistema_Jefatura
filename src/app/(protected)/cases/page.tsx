@@ -52,9 +52,12 @@ export default async function CasesPage({
           className="rounded border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
         >
           <option value="">Estado (todos)</option>
-          <option value="OPEN">Abierto</option>
-          <option value="IN_PROGRESS">En progreso</option>
-          <option value="WAITING_STUDENT">Esperando estudiante</option>
+          <option value="NEW">Nuevo</option>
+          <option value="IN_REVIEW">En revisión</option>
+          <option value="PENDING_STUDENT">Pendiente estudiante</option>
+          <option value="REFERRED">Derivado</option>
+          <option value="FOLLOW_UP">Seguimiento</option>
+          <option value="RESOLVED">Resuelto</option>
           <option value="CLOSED">Cerrado</option>
         </select>
         <select
@@ -113,7 +116,7 @@ export default async function CasesPage({
                 <td className="px-4 py-2">{caseRecord.status}</td>
                 <td className="px-4 py-2">{caseRecord.priority}</td>
                 <td className="px-4 py-2">
-                  {caseRecord.responsible?.name ?? "-"}
+                  {caseRecord.assignedTo?.name ?? "-"}
                 </td>
               </tr>
             ))}
@@ -133,4 +136,3 @@ export default async function CasesPage({
     </div>
   );
 }
-
